@@ -11,20 +11,13 @@ RUN git clone https://github.com/forcedotcom/dataloader.git && \
     git submodule update && \
     mvn clean package -DskipTests
 
-WORKDIR /opt/sfdc
+WORKDIR /opt/app
 
-COPY dataloader ./
-
-RUN chmod +x dataloader && \
-    mkdir configs && \
+RUN mkdir configs && mkdir libs && \
     cp /tmp/dataloader/target/dataloader-*-uber.jar ./dataloader.jar && \
     cp -r /tmp/dataloader/release/mac/configs ./configs/sample && \
-    rm -r /tmp/dataloader
-
-ENV PATH=/opt/sfdc:${PATH}
-
-VOLUME ["/opt/sfdc/configs"]
-VOLUME ["/opt/sfdc/libs"]
+    rm -r /tmp/dataloader && \
+    rm -r ~/.m2
 
 # SCHEDULING
 ARG JOBBER_VERSION=1.4.0
@@ -40,7 +33,17 @@ RUN wget -O /tmp/jobber.apk "https://github.com/dshearer/jobber/releases/downloa
     chown -R ${USER} "/var/jobber/${USER_ID}"
     
 COPY --chown=${USER} jobfile /home/${USER}/.jobber
-RUN chmod 0600 /home/${USER}/.jobber
+RUN chown -R ${USER} configs && \
+    chown -R ${USER} libs && \
+    chmod 0600 /home/${USER}/.jobber
+
+# WRAPPING UP
+COPY dataloader ./
+RUN chmod +x dataloader
+ENV PATH=/opt/app:${PATH}
 USER ${USER}
+
+VOLUME ["/opt/app/configs"]
+VOLUME ["/opt/app/libs"]
 
 CMD ["/usr/libexec/jobberrunner", "-u", "/var/jobber/1000/cmd.sock", "/home/dataloader/.jobber"]

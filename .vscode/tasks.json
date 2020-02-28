@@ -6,12 +6,20 @@
         {
             "label": "build-image",
             "type": "shell",
-            "command": "docker image build --force-rm -t shillem-dataloader ${workspaceRoot}"
+            "command": "docker image build --force-rm -t ${input:imageName} ${workspaceRoot}"
         },
         {
-            "label": "bash-image",
+            "label": "bash-into-image",
             "type": "shell",
-            "command": "docker container run --rm -it --entrypoint sh shillem-dataloader"
+            "command": "docker container run --rm -it --entrypoint bash ${input:imageName}"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "imageName",
+            "type": "promptString",
+            "default": "sfdc-dataloader",
+            "description": "Type the name of the image you want to create."
         }
     ]
 }

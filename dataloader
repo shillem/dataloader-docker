@@ -17,6 +17,14 @@ encryption_key() {
 }
 
 case "$1" in
+    "decrypt")
+        if [ -z "$2" ]; then
+            echo "You must provide the string to decrypt"
+            exit 0
+        fi
+
+        encryption_key "-d" "$2"
+        ;;
     "encrypt")
         if [ -z "$2" ]; then
             echo "You must provide the string to encrypt"
@@ -41,6 +49,6 @@ case "$1" in
         dataloader "configs/$2" "$CMD" "process.name=$3"
         ;;
     *)
-        echo "Invalid command. You must specify either 'encrypt' or 'process'."
+        echo "Invalid operation. You must specify either 'decrypt', 'encrypt' or 'process'."
         exit 0
 esac
