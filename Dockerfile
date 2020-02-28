@@ -1,7 +1,8 @@
-FROM adoptopenjdk:11-jdk-openj9
+FROM alpine:latest
 
-RUN apt-get update && apt-get install cron git maven -y
+RUN apk --no-cache add bash git maven openjdk11-jdk
 
+# DATA LOADER
 WORKDIR /tmp
 
 RUN git clone https://github.com/forcedotcom/dataloader.git && \
@@ -10,16 +11,36 @@ RUN git clone https://github.com/forcedotcom/dataloader.git && \
     git submodule update && \
     mvn clean package -DskipTests
 
-WORKDIR /opt/app
+WORKDIR /opt/sfdc
 
-RUN cp /tmp/dataloader/target/dataloader-*-uber.jar ./dataloader.jar && \
-    cp -r /tmp/dataloader/release/mac/configs ./config && \
+COPY dataloader ./
+
+RUN chmod +x dataloader && \
+    mkdir configs && \
+    cp /tmp/dataloader/target/dataloader-*-uber.jar ./dataloader.jar && \
+    cp -r /tmp/dataloader/release/mac/configs ./configs/sample && \
     rm -r /tmp/dataloader
 
-VOLUME ["/opt/app/config"]
+ENV PATH=/opt/sfdc:${PATH}
 
-COPY process.sh ./
+VOLUME ["/opt/sfdc/configs"]
+VOLUME ["/opt/sfdc/libs"]
 
-ENTRYPOINT ["sh", "process.sh"]
+# SCHEDULING
+ARG JOBBER_VERSION=1.4.0
+ENV USER=dataloader
+ENV USER_ID=1000
 
-# CMD [ "cron", "-f" ]
+RUN addgroup ${USER} && adduser -S -u "${USER_ID}" ${USER}
+
+RUN wget -O /tmp/jobber.apk "https://github.com/dshearer/jobber/releases/download/v${JOBBER_VERSION}/jobber-${JOBBER_VERSION}-r0.apk" && \
+    apk add --no-network --no-scripts --allow-untrusted /tmp/jobber.apk && \
+    rm /tmp/jobber.apk && \
+    mkdir -p "/var/jobber/${USER_ID}" && \
+    chown -R ${USER} "/var/jobber/${USER_ID}"
+    
+COPY --chown=${USER} jobfile /home/${USER}/.jobber
+RUN chmod 0600 /home/${USER}/.jobber
+USER ${USER}
+
+CMD ["/usr/libexec/jobberrunner", "-u", "/var/jobber/1000/cmd.sock", "/home/dataloader/.jobber"]

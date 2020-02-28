@@ -1,0 +1,17 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-image",
+            "type": "shell",
+            "command": "docker image build --force-rm -t shillem-dataloader ${workspaceRoot}"
+        },
+        {
+            "label": "bash-image",
+            "type": "shell",
+            "command": "docker container run --rm -it --entrypoint sh shillem-dataloader"
+        }
+    ]
+}
