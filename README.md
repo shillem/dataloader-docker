@@ -50,5 +50,18 @@ $ docker container run --rm -it \
 ```
 For example, if you had created a `configs/production` subfolder with a process name named `accountMaster` your would type:
 ```
-$ docker container run --rm -it -v $(pwd)/configs:/opt/app/configs/ -v $(pwd)/libs:/opt/app/libs/ --entrypoint dataloader <dataloader_image_name> process production accountMaster
+$ docker container run --rm -it \
+    -v $(pwd)/configs:/opt/app/configs/ \
+    -v $(pwd)/libs:/opt/app/libs/ \
+    --entrypoint dataloader <dataloader_image_name> process production accountMaster
+```
+
+### As a Scheduler
+To run the container so that it runs as scheduler you omit the `--entrypoint` we used so far and map your jobber file definition as follows:
+```
+$ docker container run \
+    -v $(pwd)/jobber.yaml:/home/dataloader/.jobber \
+    -v $(pwd)/configs:/opt/app/configs/ \
+    -v $(pwd)/libs:/opt/app/libs/ \
+    --name my-sfdc-dataloader <dataloader_image_name>
 ```
