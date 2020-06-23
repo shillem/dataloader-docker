@@ -33,7 +33,7 @@ $ docker container run --rm -it \
 To decrypt the password encypted above:
 ```
 $ docker container run --rm -it \
-    -v $(pwd):/opt/app/configs/ \
+    -v $(pwd)/configs:/opt/app/configs/ \
     --entrypoint dataloader <dataloader_image_name> decrypt <encrypted_password>
 ```
 
