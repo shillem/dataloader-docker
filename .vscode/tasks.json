@@ -11,7 +11,7 @@
         {
             "label": "bash-into-image",
             "type": "shell",
-            "command": "docker container run --rm -it --entrypoint bash ${input:imageName}"
+            "command": "docker container run --rm -u 0 -it --entrypoint bash ${input:imageName}"
         }
     ],
     "inputs": [
