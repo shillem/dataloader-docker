@@ -1,6 +1,10 @@
-FROM alpine:latest
+FROM alpine:latest as base
 
-RUN apk --no-cache add bash git maven openjdk11-jdk
+RUN apk --no-cache add bash openjdk11-jdk
+
+FROM base as compiler
+
+RUN apk --no-cache add git maven
 
 # DATA LOADER
 WORKDIR /tmp
@@ -11,13 +15,14 @@ RUN git clone https://github.com/forcedotcom/dataloader.git && \
     git submodule update && \
     mvn clean package -DskipTests
 
+FROM base
+
 WORKDIR /opt/app
 
-RUN mkdir configs && mkdir libs && \
-    cp /tmp/dataloader/target/dataloader-*-uber.jar ./dataloader.jar && \
-    cp -r /tmp/dataloader/release/mac/configs ./configs/sample && \
-    rm -r /tmp/dataloader && \
-    rm -r ~/.m2
+RUN mkdir configs && mkdir libs
+
+COPY --from=compiler /tmp/dataloader/target/dataloader-*-uber.jar ./dataloader.jar
+COPY --from=compiler /tmp/dataloader/release/mac/configs ./configs/sample
 
 # SCHEDULING
 ARG JOBBER_VERSION=1.4.0
