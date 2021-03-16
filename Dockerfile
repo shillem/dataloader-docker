@@ -11,6 +11,7 @@ WORKDIR /tmp
 
 RUN git clone https://github.com/forcedotcom/dataloader.git && \
     cd dataloader && \
+    git checkout $(git tag | sort -V | tail -1) && \
     git submodule init && \
     git submodule update && \
     mvn clean package -DskipTests
