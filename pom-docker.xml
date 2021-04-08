@@ -1,0 +1,20 @@
+    
+    <profile>
+        <id>docker</id>
+        <activation>
+            <os>
+                <family>linux</family>
+                <arch>amd64</arch>
+            </os>
+        </activation>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.swt</groupId>
+                <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+                <version>4.3</version>
+            </dependency>
+        </dependencies>
+        <properties>
+            <OSType>docker</OSType>
+        </properties>
+    </profile>

@@ -1,19 +1,19 @@
 #!/bin/bash
 set -e
 
-dataloader() {
-    java -cp dataloader.jar:/opt/app/libs/* -Dsalesforce.config.dir="${1}" "${@:2}"
-}
-
 encryption_key() {
     CMD="com.salesforce.dataloader.security.EncryptionUtil"
     KEY="configs/encryption.key"
 
     if [ ! -f "$KEY" ]; then
-        dataloader "configs" "$CMD" "-k" "$KEY"
+        jar "$CMD" "-k" "$KEY"
     fi
 
-    dataloader "configs" "$CMD" "$1" "$2" "$KEY"
+    jar "$CMD" "$1" "$2" "$KEY"
+}
+
+jar() {
+    java -cp dataloader.jar:/opt/app/libs/* "${@:1}"
 }
 
 case "$1" in
@@ -34,7 +34,7 @@ case "$1" in
         encryption_key "-e" "$2"
         ;;
     "process")
-        CMD="com.salesforce.dataloader.process.ProcessRunner"
+        CMD="com.salesforce.dataloader.process.DataLoaderRunner"
 
         if [ -z "$2" ]; then
             echo "You must provide the configs/ config folder"
@@ -46,7 +46,7 @@ case "$1" in
             exit 0
         fi
         
-        dataloader "configs/$2" "$CMD" "process.name=$3"
+        jar "$CMD" "salesforce.config.dir=configs/$2" "run.mode=batch" "process.name=$3"
         ;;
     *)
         echo "Invalid operation. You must specify either 'decrypt', 'encrypt' or 'process'."
