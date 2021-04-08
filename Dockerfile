@@ -38,7 +38,7 @@ RUN wget -O /tmp/jobber.apk "https://github.com/dshearer/jobber/releases/downloa
     mkdir -p "/var/jobber/${USER_ID}" && \
     chown -R ${USER} "/var/jobber/${USER_ID}"
     
-COPY --chown=${USER} jobfile /home/${USER}/.jobber
+COPY --chown=${USER} jobber.yaml /home/${USER}/.jobber
 RUN chown -R ${USER} configs && \
     chown -R ${USER} libs && \
     chmod 0600 /home/${USER}/.jobber

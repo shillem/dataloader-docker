@@ -9,6 +9,11 @@
             "command": "docker image build --force-rm -t ${input:imageName} ${workspaceRoot}"
         },
         {
+            "label": "build-image-no-cache",
+            "type": "shell",
+            "command": "docker image build --no-cache --force-rm -t ${input:imageName} ${workspaceRoot}"
+        },
+        {
             "label": "bash-into-image",
             "type": "shell",
             "command": "docker container run --rm -u 0 -it --entrypoint bash ${input:imageName}"
