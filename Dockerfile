@@ -11,19 +11,27 @@ WORKDIR /tmp
 
 RUN git clone https://github.com/forcedotcom/dataloader.git && \
     cd dataloader && \
-    git checkout $(git tag | sort -V | tail -1) && \
     git submodule init && \
-    git submodule update && \
-    mvn clean package -DskipTests
+    git submodule update
+
+WORKDIR /tmp/dataloader
+
+COPY pom-docker.xml .
+COPY pom-fix.sh .
+
+RUN chmod +x pom-fix.sh && ./pom-fix.sh pom.xml pom-docker.xml
+
+RUN mvn clean package -DskipTests
 
 FROM base
 
 WORKDIR /opt/app
 
-RUN mkdir configs && mkdir libs
+RUN mkdir -p configs/release && mkdir libs
 
 COPY --from=compiler /tmp/dataloader/target/dataloader-*-uber.jar ./dataloader.jar
-COPY --from=compiler /tmp/dataloader/release/mac/configs ./configs/sample
+COPY --from=compiler /tmp/dataloader/release/configs ./configs/example/configs
+COPY --from=compiler /tmp/dataloader/release/samples ./configs/example/samples
 
 # SCHEDULING
 ARG JOBBER_VERSION=1.4.0
@@ -38,7 +46,7 @@ RUN wget -O /tmp/jobber.apk "https://github.com/dshearer/jobber/releases/downloa
     mkdir -p "/var/jobber/${USER_ID}" && \
     chown -R ${USER} "/var/jobber/${USER_ID}"
     
-COPY --chown=${USER} jobfile /home/${USER}/.jobber
+COPY --chown=${USER} jobber.yaml /home/${USER}/.jobber
 RUN chown -R ${USER} configs && \
     chown -R ${USER} libs && \
     chmod 0600 /home/${USER}/.jobber
