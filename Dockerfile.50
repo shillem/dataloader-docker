@@ -6,20 +6,16 @@ RUN apk --no-cache add git maven
 WORKDIR /tmp
 RUN git clone https://github.com/forcedotcom/dataloader.git && \
     cd dataloader && \
+    git checkout v50.0.0 && \
     git submodule init && \
-    git submodule update
-WORKDIR /tmp/dataloader
-COPY pom-docker.xml .
-COPY pom-fix.sh .
-RUN chmod +x pom-fix.sh && ./pom-fix.sh pom.xml pom-docker.xml
-RUN mvn clean package -DskipTests
+    git submodule update && \
+    mvn clean package -DskipTests
 
 FROM base
 WORKDIR /opt/app
-RUN mkdir -p configs/release && mkdir libs
+RUN mkdir configs && mkdir libs
 COPY --from=dataloader /tmp/dataloader/target/dataloader-*-uber.jar ./dataloader.jar
-COPY --from=dataloader /tmp/dataloader/release/configs ./configs/example/configs
-COPY --from=dataloader /tmp/dataloader/release/samples ./configs/example/samples
+COPY --from=dataloader /tmp/dataloader/release/mac/configs ./configs/sample
 
 ARG JOBBER_VERSION=1.4.0
 ENV USER=dataloader
@@ -35,7 +31,7 @@ RUN chown -R ${USER} configs && \
     chown -R ${USER} libs && \
     chmod 0600 /home/${USER}/.jobber
 
-COPY dataloader ./
+COPY dataloader.50 ./dataloader
 RUN chmod +x dataloader
 ENV PATH=/opt/app:${PATH}
 USER ${USER}

@@ -2,8 +2,12 @@
 This is a dockerized version of [forcedotcom/dataloader](https://github.com/forcedotcom/dataloader).\
 For more information consult the [Data Loader Guide](https://developer.salesforce.com/docs/atlas.en-us.dataLoader.meta/dataLoader/data_loader.htm).
 
-## Image
-Simply build the image using `docker image build -t <dataloader_image_name> .`.
+## Images
+You can build Dataloader based on 2 versions: __50.0.0__ or __latest__.\
+The reason is because the Dataloader underwent a substantial change from version [51](https://github.com/forcedotcom/dataloader/releases/tag/v51.0.1) onward.
+
+To build version 50 use `docker image build -f Dockerfile.50 -t <dataloader_image_name> .`.
+To build the latest version use `docker image build -t <dataloader_image_name> .`.
 
 ## Container
 The container can work in 2 ways, as a interactive executable or scheduler:
