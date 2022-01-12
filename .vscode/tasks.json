@@ -6,17 +6,20 @@
         {
             "label": "build-image-latest",
             "type": "shell",
-            "command": "docker image build --force-rm -t ${input:imageName} ${workspaceRoot}"
+            "command": "docker image build --no-cache --build-arg VERSION=${input:versionNumber} --force-rm -t ${input:imageName} ${workspaceRoot}",
+            "problemMatcher": []
         },
         {
             "label": "build-image-50",
             "type": "shell",
-            "command": "docker image build --force-rm -f Dockerfile.50 -t ${input:imageName}:50.0.0 ${workspaceRoot}"
+            "command": "docker image build --force-rm -f Dockerfile.50 -t ${input:imageName}:50.0.0 ${workspaceRoot}",
+            "problemMatcher": []
         },
         {
             "label": "bash-into-image",
             "type": "shell",
-            "command": "docker container run --rm -u 0 -it --entrypoint bash ${input:imageName}"
+            "command": "docker container run --rm -u 0 -it --entrypoint bash ${input:imageName}",
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -25,6 +28,12 @@
             "type": "promptString",
             "default": "sfdc-dataloader",
             "description": "Type the name of the image you want to create."
+        },
+        {
+            "id": "versionNumber",
+            "type": "promptString",
+            "default": "master",
+            "description": "Type the version number of the image you want to create."
         }
     ]
 }
