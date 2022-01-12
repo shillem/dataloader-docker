@@ -2,10 +2,12 @@ FROM alpine:latest as base
 RUN apk --no-cache add bash openjdk11-jdk
 
 FROM base as dataloader
+ARG VERSION=master
 RUN apk --no-cache add git maven
 WORKDIR /tmp
 RUN git clone https://github.com/forcedotcom/dataloader.git && \
     cd dataloader && \
+    git checkout ${VERSION} && \
     git submodule init && \
     git submodule update
 WORKDIR /tmp/dataloader
