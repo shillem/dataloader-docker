@@ -2,53 +2,53 @@
 set -e
 
 encryption_key() {
-    CMD="com.salesforce.dataloader.security.EncryptionUtil"
-    KEY="configs/encryption.key"
+  CMD="com.salesforce.dataloader.security.EncryptionUtil"
+  KEY="configs/encryption.key"
 
-    if [ ! -f "$KEY" ]; then
-        jar "$CMD" "-k" "$KEY"
-    fi
+  if [ ! -f "$KEY" ]; then
+    jar "$CMD" "-k" "$KEY"
+  fi
 
-    jar "$CMD" "$1" "$2" "$KEY"
+  jar "$CMD" "$1" "$2" "$KEY"
 }
 
 jar() {
-    java -cp dataloader.jar:/opt/app/libs/* "${@:1}"
+  java -cp dataloader.jar:/opt/app/libs/* "${@:1}"
 }
 
 case "$1" in
-    "decrypt")
-        if [ -z "$2" ]; then
-            echo "You must provide the string to decrypt"
-            exit 0
-        fi
+  "decrypt")
+    if [ -z "$2" ]; then
+      echo "You must provide the string to decrypt"
+      exit 0
+    fi
 
-        encryption_key "-d" "$2"
-        ;;
-    "encrypt")
-        if [ -z "$2" ]; then
-            echo "You must provide the string to encrypt"
-            exit 0
-        fi
+    encryption_key "-d" "$2"
+    ;;
+  "encrypt")
+    if [ -z "$2" ]; then
+      echo "You must provide the string to encrypt"
+      exit 0
+    fi
 
-        encryption_key "-e" "$2"
-        ;;
-    "process")
-        CMD="com.salesforce.dataloader.process.DataLoaderRunner"
+    encryption_key "-e" "$2"
+    ;;
+  "process")
+    CMD="com.salesforce.dataloader.process.DataLoaderRunner"
 
-        if [ -z "$2" ]; then
-            echo "You must provide the configs/ config folder"
-            exit 0
-        fi
+    if [ -z "$2" ]; then
+      echo "You must provide the configs/ config folder"
+      exit 0
+    fi
 
-        if [ -z "$3" ]; then
-            echo "You must provide the process name"
-            exit 0
-        fi
-        
-        jar "$CMD" "salesforce.config.dir=configs/$2" "run.mode=batch" "process.name=$3"
-        ;;
-    *)
-        echo "Invalid operation. You must specify either 'decrypt', 'encrypt' or 'process'."
-        exit 0
+    if [ -z "$3" ]; then
+      echo "You must provide the process name"
+      exit 0
+    fi
+    
+    jar "$CMD" "salesforce.config.dir=configs/$2" "run.mode=batch" "process.name=$3"
+    ;;
+  *)
+    echo "Invalid operation. You must specify either 'decrypt', 'encrypt' or 'process'."
+    exit 0
 esac

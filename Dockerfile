@@ -1,5 +1,5 @@
-FROM alpine:latest as base
-RUN apk --no-cache add bash openjdk11-jdk
+FROM --platform=linux/amd64 alpine:latest as base
+RUN apk --no-cache add bash openjdk17-jdk
 
 FROM base as dataloader
 ARG VERSION=master
@@ -14,16 +14,16 @@ WORKDIR /tmp/dataloader
 COPY pom-docker.xml .
 COPY pom-fix.sh .
 RUN chmod +x pom-fix.sh && ./pom-fix.sh pom.xml pom-docker.xml
-RUN mvn clean package -DskipTests
+# RUN mvn clean package -DskipTests
+RUN ./dlbuilder.sh
 
 FROM base
 WORKDIR /opt/app
 RUN mkdir -p configs/release && mkdir libs
-COPY --from=dataloader /tmp/dataloader/target/dataloader-*-uber.jar ./dataloader.jar
-COPY --from=dataloader /tmp/dataloader/release/configs ./configs/example/configs
-COPY --from=dataloader /tmp/dataloader/release/samples ./configs/example/samples
+COPY --from=dataloader /tmp/dataloader/target/dataloader-*.jar ./dataloader.jar
+COPY --from=dataloader /tmp/dataloader/target/test-classes/testfiles ./testfiles
 
-ARG JOBBER_VERSION=1.4.0
+ARG JOBBER_VERSION=1.4.4
 ENV USER=dataloader
 ENV USER_ID=1000
 RUN addgroup ${USER} && adduser -S -u "${USER_ID}" ${USER}
